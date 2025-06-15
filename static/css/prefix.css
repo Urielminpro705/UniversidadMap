@@ -11,6 +11,8 @@
     --background: rgb(227, 225, 225);
     --hover: rgb(215, 214, 214);
     --on: rgb(0, 196, 0);
+    --ubicacion: rgb(187, 48, 48);
+    --destino: rgb(40, 40, 141);
 }
 
 body {

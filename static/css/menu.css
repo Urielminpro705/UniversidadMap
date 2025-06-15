@@ -263,7 +263,10 @@ h2 {
     padding: 0;
     padding-top: 7px;
     padding-bottom: 7px;
-    padding-inline: 15px;
+    padding-inline: 15px;  
+}
+
+.btn-3d {
     border: none;
     background-color: var(--secundario);
     color:  var(--primario);
@@ -416,10 +419,13 @@ h2 {
 .cont-ubicacion-actual {
     height: auto;
     background-color: var(--terciario);
-    margin-top: 10px;
+    margin-bottom: 20px;
     margin-inline: 10px;
     border-radius: 7px;
     padding: 10px;
+    display: flex;
+    flex-direction: column;
+    align-items: center;
 }
 
 .cont-ubicacion-actual p {
@@ -435,6 +441,7 @@ h2 {
 
 .cont-ubicacion-actual .direccion-actual-titulo i {
     margin-right: 5px;
+    color: var(--ubicacion);
 }
 
 .cont-ubicacion-actual .direccion-actual-txt {
@@ -443,6 +450,21 @@ h2 {
 
 .cont-ubicacion-actual .direccion-actual-cords {
     font-size: 0.7rem;
+}
+
+.btn-ubicacion-actual {
+    padding-inline: 15px;
+    padding-bottom: 7px;
+    padding-top: 7px;
+}
+
+.cont-btns-ubicacion {
+    margin-top: 10px;
+    display: flex;
+    flex-wrap: wrap;
+    justify-content: center;
+    row-gap: 10px;
+    column-gap: 10px;
 }
 
 #cont-ubicaciones-cercanas {
@@ -487,15 +509,10 @@ h2 {
 
 .cont-marker-temporal .btn-marker {
     width: 48%;
-    background-color: var(--secundario);
-    border: none;
-    color: var(--primario);
     padding-top: 4px;
     padding-bottom: 4px;
     border-radius: 5px;
-    cursor: pointer;
     font-weight: 500;
-    transition: 0.2s;
 }
 
 .cont-marker-temporal .btn-marker:hover {

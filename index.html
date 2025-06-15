@@ -15,23 +15,23 @@
     <main id="main">
         <section id="cont-bar-lateral">
             <div class="cont-bar-secciones">
-                <button class="btn-bar-seccion btn-bar-seccion-active" title="Inicio" id="btn-seccion-inicio" data-id="cont-pantalla-inicio" >
+                <button class="btn-bar-seccion btn-bar-seccion-active" title="Inicio" id="btn-seccion-inicio" data-id="cont-pantalla-inicio" onclick="abrirMenuLateral(event)">
                     <i class="fa-solid fa-house"></i>
                 </button>
-                <button class="btn-bar-seccion" title="Detalles" id="btn-seccion-detalles" data-id="cont-pantalla-detalles">
+                <button class="btn-bar-seccion" title="Detalles" id="btn-seccion-detalles" data-id="cont-pantalla-detalles" onclick="abrirMenuLateral(event)">
                     <i class="fa-solid fa-location-dot"></i>
                 </button>
-                <button class="btn-bar-seccion" title="Navegación" id="btn-seccion-navegacion" data-id="cont-pantalla-navegacion">
+                <button class="btn-bar-seccion" title="Navegación" id="btn-seccion-navegacion" data-id="cont-pantalla-navegacion" onclick="abrirMenuLateral(event)">
                     <i class="fa-solid fa-compass"></i>
                 </button>
-                <button class="btn-bar-seccion" title="Configuración" id="btn-seccion-ajustes" data-id="cont-pantalla-ajustes">
+                <button class="btn-bar-seccion" title="Configuración" id="btn-seccion-ajustes" data-id="cont-pantalla-ajustes" onclick="abrirMenuLateral(event)">
                     <i class="fa-solid fa-gear"></i>
                 </button>
             </div>
             <div class="cont-bar-display  cont-bar-display-active" id="cont-pantalla-inicio">
                 <div class="cont-titulo">
                     <h1>La Salle Maps</h1>
-                    <button title="Cerrar Menú" class="btn-menu">
+                    <button title="Cerrar Menú" class="btn-menu" onclick="cerrarMenuLateral()">
                         <i class="fa-solid fa-circle-chevron-left"></i>
                     </button>
                 </div>
@@ -58,7 +58,7 @@
             <div class="cont-bar-display" id="cont-pantalla-detalles" hidden>
                 <div class="cont-titulo">
                     <h1>Detalles</h1>
-                    <button title="Cerrar Menú" class="btn-menu">
+                    <button title="Cerrar Menú" class="btn-menu" onclick="cerrarMenuLateral()">
                         <i class="fa-solid fa-circle-chevron-left"></i>
                     </button>
                 </div>
@@ -77,7 +77,7 @@
             <div class="cont-bar-display" id="cont-pantalla-ajustes" hidden>
                 <div class="cont-titulo">
                     <h1>Configuración</h1>
-                    <button title="Cerrar Menú" class="btn-menu">
+                    <button title="Cerrar Menú" class="btn-menu" onclick="cerrarMenuLateral()">
                         <i class="fa-solid fa-circle-chevron-left"></i>
                     </button>
                 </div>
@@ -87,9 +87,25 @@
             <div class="cont-bar-display" id="cont-pantalla-navegacion" hidden>
                 <div class="cont-titulo">
                     <h1>Navegación</h1>
-                    <button title="Cerrar Menú" class="btn-menu">
+                    <button title="Cerrar Menú" class="btn-menu" onclick="cerrarMenuLateral()">
                         <i class="fa-solid fa-circle-chevron-left"></i>
                     </button>
+                </div>
+                <div class="cont-ubicacion-actual">
+                    <p class="direccion-actual-titulo">
+                        <i class="fa-solid fa-location-dot"></i>
+                        Ubicacion actual
+                    </p>
+                    <p class="direccion-actual-txt">---Selecciona una ubicación---</p>
+                    <p class="direccion-actual-cords"></p>
+                    <div class="cont-btns-ubicacion">
+                        <button class="btn-ubicacion-actual btn-3d" onclick="activarModoBusqueda('ubicacion_actual')">
+                            Manualmente
+                        </button>
+                        <button class="btn-ubicacion-actual btn-3d">
+                            Automaticamente
+                        </button>
+                    </div>
                 </div>
                 <h2>¿A donde vas?</h2>
                 <div class="cont-barra-busqueda">
@@ -98,19 +114,12 @@
                         <i class="fa-solid fa-magnifying-glass"></i>
                     </button>
                 </div>
-                <div class="cont-ubicacion-actual">
-                    <p class="direccion-actual-titulo">
-                        <i class="fa-solid fa-location-dot"></i>
-                        Ubicacion actual
-                    </p>
-                    <p class="direccion-actual-txt">---Busca una dirección---</p>
-                    <p class="direccion-actual-cords"></p>
-                </div>
             </div>
         </section>
         <section id="cont-map">
             <div id="map"></div>
         </section>
+        <div class="cont-menu-inferior" hidden></div>
     </main>
     
     <script src="https://unpkg.com/leaflet/dist/leaflet.js"></script>

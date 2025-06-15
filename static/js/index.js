@@ -10,10 +10,10 @@ const capaCalles = L.layerGroup();
 var poligonos = null;
 var puntos =  null;
 var calles = null;
-var mapaClick = true;
-var ubicacion_actual = {
-    
-};
+var mapaClick = false;
+var listPuntos = [];
+var listPolys = [];
+let pantallaCooldownActivo = false;
 var ubicaciones = {
     ubicacion_actual: {
         nombre: "Ubicación Actual",
@@ -40,9 +40,7 @@ var ubicaciones = {
         }
     }
 }
-var listPuntos = [];
-var listPolys = [];
-let pantallaCooldownActivo = false;
+var ubicacionBuscada = ubicaciones["destino"].nombre;
 const limitesCoords = L.latLngBounds(
   [21.15014807520116, -101.71388646513078], // Suroeste
   [21.154566201329885, -101.70916391707974] // Noreste
@@ -105,7 +103,7 @@ var capaMapaActual = L.tileLayer(mapas[0].url, {
 mostrarBtnsMapas();
 
 //#region Funciones de Marcadores
-function agregarMarkerTemporal(lat, lon, nombreUbicacion = "destino") {
+function agregarMarkerTemporal(lat, lon, nombreUbicacion = ubicacionBuscada) {
     const ubicacion = ubicaciones[nombreUbicacion];
     if (!ubicacion) return;
     if (ubicacion.temp.tag) {
@@ -127,7 +125,7 @@ function agregarMarkerTemporal(lat, lon, nombreUbicacion = "destino") {
         .openPopup();
 }
 
-function removerMarkerTemporal(nombreUbicacion = "destino") {
+function removerMarkerTemporal(nombreUbicacion = ubicacionBuscada) {
     const ubicacion = ubicaciones[nombreUbicacion];
     if (!ubicacion) return;
     if (ubicacion.temp.tag) {
@@ -138,11 +136,11 @@ function removerMarkerTemporal(nombreUbicacion = "destino") {
     }
 }
 
-function agregarMarkerPermanente(nombreUbicacion = "destino") {
+function agregarMarkerPermanente(nombreUbicacion = ubicacionBuscada, continuarBusqueda = false) {
     const ubicacion = ubicaciones[nombreUbicacion];
     if (!ubicacion) return;
     if (ubicacion.tag) {
-        removerMarkerPermanente(nombreUbicacion = "destino");
+        removerMarkerPermanente(nombreUbicacion = nombreUbicacion);
     }
     if (ubicacion.temp.tag) {
         ubicacion.lat = ubicacion.temp.lat;
@@ -150,11 +148,14 @@ function agregarMarkerPermanente(nombreUbicacion = "destino") {
         ubicacion.tag = L.marker([ubicacion.lat, ubicacion.lon]).addTo(map)
             .bindPopup(ubicacion.nombre)
             .openPopup();
-        removerMarkerTemporal(nombreUbicacion = "destino");
+        removerMarkerTemporal(nombreUbicacion = nombreUbicacion);
+    }
+    if (!continuarBusqueda) {
+        desactivarModoBusqueda(nombreUbicacion = nombreUbicacion);
     }
 }
 
-function removerMarkerPermanente(nombreUbicacion = "destino") {
+function removerMarkerPermanente(nombreUbicacion = ubicacionBuscada) {
     const ubicacion = ubicaciones[nombreUbicacion];
     if (!ubicacion) return;
     if (ubicacion.tag) {
@@ -163,6 +164,54 @@ function removerMarkerPermanente(nombreUbicacion = "destino") {
         ubicacion.lat = null;
         ubicacion.lon = null;
     }
+}
+
+//#endregion
+
+function abrirMenuInferior(content) {
+    const contenedor = document.querySelector(".cont-menu-inferior");
+    contenedor.hidden = false;
+    contenedor.innerHTML = content;
+    setTimeout(function () {
+        contenedor.classList.add("cont-menu-inferior-activo");
+    }, 100)
+}
+
+function cerrarMenuInferior() {
+    const contenedor = document.querySelector(".cont-menu-inferior");
+    contenedor.classList.remove("cont-menu-inferior-activo");
+    const duracionMs = obtenerTiempoAnimacion(contenedor);
+    setTimeout(function () {
+        contenedor.hidden = true;
+        contenedor.innerHTML = "";
+    }, duracionMs)
+}
+
+function activarModoBusqueda(nombreUbicacion = "destino") {
+    ubicacionBuscada = nombreUbicacion;
+    map.zoomIn(17);
+    const menuInferior = `
+        <div class="cont-menu-inferior-contenido cont-menu-inferior-contenido-seleccionar-ubicacion">
+            <p class="txt-menu-inferior">
+                <i class="fa-solid fa-location-dot"></i>
+                Presiona la ubicación en el mapa
+            </p>
+            <button class="cont-menu-inferior-btn btn-3d" onclick="desactivarModoBusqueda('${nombreUbicacion}')">
+                Salir del modo de búsqueda
+            </button>
+        </div>
+    `
+    abrirMenuInferior(menuInferior);
+    mapaClick = true;
+    cerrarMenuLateral();
+}
+
+function desactivarModoBusqueda(nombreUbicacion = "destino") {
+    mapaClick = false;
+    map.zoomOut(17);
+    cerrarMenuInferior();
+    removerMarkerTemporal(nombreUbicacion = nombreUbicacion);
+    abrirMenuLateral(undefined, pantallaActual.id);
 }
 
 function mostrarBtnsMapas() {
@@ -184,7 +233,6 @@ function mostrarBtnsMapas() {
         contenedor.innerHTML += btn;
     });
 }
-//#endregion
 
 function cambiarMapa(event, nombre){
     const mapaInfo = mapas.find(mapa => mapa.nombre == nombre);
@@ -262,15 +310,47 @@ function obtenerTiempoAnimacion(componente) {
     return duracionMs;
 }
 
-document.querySelectorAll(".btn-menu").forEach((btn) => {
-    btn.addEventListener("click", function() {
-        eliminarClase("btn-bar-seccion-active");
-        main.classList.add("con-bar-lateral-closed");
+function cerrarMenuLateral() {
+    eliminarClase("btn-bar-seccion-active");
+    main.classList.add("con-bar-lateral-closed");
+    setTimeout(() => {
+        map.invalidateSize();
+    }, 200);
+}
+
+function abrirMenuLateral(event = null, idPantalla = null) {
+    let btn = null;
+
+    if (!event) {
+        btns_secciones.forEach((boton) => {
+            if (boton.getAttribute("data-id") == idPantalla) {
+                btn = boton;
+            }
+        });
+    } else {
+        btn = event.target.closest("button");
+        if (!idPantalla) {
+            idPantalla = btn?.getAttribute("data-id");
+        }
+    }
+
+    if (pantallaCooldownActivo) return
+
+    eliminarClase("btn-bar-seccion-active");
+    btn.classList.add("btn-bar-seccion-active");
+    
+    if (main.classList.contains("con-bar-lateral-closed")) {
+        main.classList.remove("con-bar-lateral-closed");
         setTimeout(() => {
             map.invalidateSize();
         }, 200);
-    });
-});
+    }
+    
+    const pantallaSiguiente = document.getElementById(idPantalla);
+    if (pantallaSiguiente != pantallaActual) {
+        cambiarPantalla(idPantalla);
+    }
+}
 
 function cambiarPantalla(pantallaSiguienteID) {
     if (pantallaCooldownActivo) return;
@@ -305,24 +385,6 @@ function cambiarPantalla(pantallaSiguienteID) {
     },duracionMs);
 }
 
-btns_secciones.forEach((btn) => {
-    btn.addEventListener("click", function() {
-        if (pantallaCooldownActivo) return
-        eliminarClase("btn-bar-seccion-active");
-        btn.classList.add("btn-bar-seccion-active");
-        if (main.classList.contains("con-bar-lateral-closed")) {
-            main.classList.remove("con-bar-lateral-closed");
-            setTimeout(() => {
-                map.invalidateSize();
-            }, 200);
-        }
-        const idPantalla = btn.getAttribute("data-id");
-        const pantallaSiguiente = document.getElementById(idPantalla);
-        if (pantallaSiguiente != pantallaActual) {
-            cambiarPantalla(idPantalla);
-        }
-    });
-});
 
 function dibujarPuntosPoligonos(data, capa) {
     capa.clearLayers();
