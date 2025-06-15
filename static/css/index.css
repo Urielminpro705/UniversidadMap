@@ -1,0 +1,28 @@
+#main {
+    display: flex;
+    flex-direction: row;
+    width: 100%;
+    height: 100vh;
+    background-color: black;
+}
+
+#cont-map {
+    width: calc(100% - 400px);
+    transition: 0.3s;
+}
+
+#map {
+    height: 100vh;
+    width: 100%;
+}
+
+#main.con-bar-lateral-closed #cont-map {
+    width: 100%;
+}
+
+@media(max-width: 470px){
+    #cont-map {
+        width: 100%;
+        transition: 0.3s;
+    }
+}

@@ -1,0 +1,120 @@
+<!DOCTYPE html>
+<html lang="es-mx">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.5.0/css/all.min.css"/>
+    <link rel="stylesheet" href="https://unpkg.com/leaflet/dist/leaflet.css" />
+    <link rel="stylesheet" href="static/css/prefix.css">
+    <link rel="stylesheet" href="static/css/index.css">
+    <link rel="stylesheet" href="static/css/menu.css">
+    <link rel="stylesheet" href="static/css/detail-screen.css">
+    <title>LaSalleMaps</title>
+</head>
+<body>
+    <main id="main">
+        <section id="cont-bar-lateral">
+            <div class="cont-bar-secciones">
+                <button class="btn-bar-seccion btn-bar-seccion-active" title="Inicio" id="btn-seccion-inicio" data-id="cont-pantalla-inicio" >
+                    <i class="fa-solid fa-house"></i>
+                </button>
+                <button class="btn-bar-seccion" title="Detalles" id="btn-seccion-detalles" data-id="cont-pantalla-detalles">
+                    <i class="fa-solid fa-location-dot"></i>
+                </button>
+                <button class="btn-bar-seccion" title="Navegación" id="btn-seccion-navegacion" data-id="cont-pantalla-navegacion">
+                    <i class="fa-solid fa-compass"></i>
+                </button>
+                <button class="btn-bar-seccion" title="Configuración" id="btn-seccion-ajustes" data-id="cont-pantalla-ajustes">
+                    <i class="fa-solid fa-gear"></i>
+                </button>
+            </div>
+            <div class="cont-bar-display  cont-bar-display-active" id="cont-pantalla-inicio">
+                <div class="cont-titulo">
+                    <h1>La Salle Maps</h1>
+                    <button title="Cerrar Menú" class="btn-menu">
+                        <i class="fa-solid fa-circle-chevron-left"></i>
+                    </button>
+                </div>
+                <div class="cont-desplegable" id="cont-filters">
+                    <button class="btn-header" id="btn-filters" data-hasarrow = "true">
+                        <p>Filtrar los resultados</p>
+                        <i class="fa-solid fa-caret-down"></i>
+                    </button>
+                    <ul class="cont-desplegable-info cont-desplegable-filtros" data-isopened="false">
+                        <li>
+                            <Label for="filtro-edificio">Edificios</Label>
+                            <input type="checkbox" name="filtro-edificio" id="filtro-edificio" class="filtro switch" value="edificio" checked>
+                        </li>
+                    </ul>
+                </div>
+                <hr>
+                <div id="cont-ubicaciones">
+                    <p class="local-main-title">Localizaciones</p>
+                    <div id="cont-locations" class="cont-contenido">
+                        <!-- Aqui van card locations -->
+                    </div>
+                </div>
+            </div>
+            <div class="cont-bar-display" id="cont-pantalla-detalles" hidden>
+                <div class="cont-titulo">
+                    <h1>Detalles</h1>
+                    <button title="Cerrar Menú" class="btn-menu">
+                        <i class="fa-solid fa-circle-chevron-left"></i>
+                    </button>
+                </div>
+                <div id="body-detail">
+                    <div id="img-detail">
+                        <p>Selecciona una locación para obtener su Información <i class="fa-regular fa-face-smile-wink"></i></p>
+                    </div>
+                    <h3 id="title-detail"></h3>
+                    <p class="sub-detail"><i class="fa-solid fa-map-location-dot"></i> A <span id="m-detail"></span> Metros</p>
+                    <p id="text-detail"></p>
+                    <div id="props-detail">
+                    </div>
+                    
+                </div>
+            </div>
+            <div class="cont-bar-display" id="cont-pantalla-ajustes" hidden>
+                <div class="cont-titulo">
+                    <h1>Configuración</h1>
+                    <button title="Cerrar Menú" class="btn-menu">
+                        <i class="fa-solid fa-circle-chevron-left"></i>
+                    </button>
+                </div>
+                <h2>Tipo de mapa</h2>
+                <div class="cont-vistas-mapa"></div>
+            </div>
+            <div class="cont-bar-display" id="cont-pantalla-navegacion" hidden>
+                <div class="cont-titulo">
+                    <h1>Navegación</h1>
+                    <button title="Cerrar Menú" class="btn-menu">
+                        <i class="fa-solid fa-circle-chevron-left"></i>
+                    </button>
+                </div>
+                <h2>¿A donde vas?</h2>
+                <div class="cont-barra-busqueda">
+                    <input type="text" id="barra-busqueda" placeholder="Buscar una ubicación" class="input-busqueda">
+                    <button id="btn-busqueda" title="Buscar">
+                        <i class="fa-solid fa-magnifying-glass"></i>
+                    </button>
+                </div>
+                <div class="cont-ubicacion-actual">
+                    <p class="direccion-actual-titulo">
+                        <i class="fa-solid fa-location-dot"></i>
+                        Ubicacion actual
+                    </p>
+                    <p class="direccion-actual-txt">---Busca una dirección---</p>
+                    <p class="direccion-actual-cords"></p>
+                </div>
+            </div>
+        </section>
+        <section id="cont-map">
+            <div id="map"></div>
+        </section>
+    </main>
+    
+    <script src="https://unpkg.com/leaflet/dist/leaflet.js"></script>
+    <script src="https://cdn.jsdelivr.net/npm/@turf/turf@6/turf.min.js"></script>
+    <script src="static/js/index.js"></script>
+</body>
+</html>
