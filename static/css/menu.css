@@ -117,7 +117,7 @@ h1 {
     transition: 0.2s;
 }
 
-#cont-filters .cont-contenido {
+#cont-filters {
     display: flex;
     flex-direction: column;
     padding: 0;
@@ -136,6 +136,8 @@ h1 {
     flex-direction: column;
     flex-wrap: wrap;
     align-items: center;
+    row-gap: 10px;
+    margin-bottom: 30px;
 }
 
 .cont-desplegable-info {
@@ -383,6 +385,7 @@ h2 {
     width: 100%;
     height: 40px;
     display: flex;
+    margin-bottom: 10px;
 }
 
 #btn-busqueda {
@@ -428,15 +431,16 @@ h2 {
     align-items: center;
 }
 
-.cont-ubicacion-actual p {
+.cont-ubicacion-actual .direccion-actual-titulo {
+    font-weight: 600;
     margin: 0;
+    margin-bottom: 7px;
     font-size: 0.9rem;
     color: var(--secundario);
 }
 
-.cont-ubicacion-actual .direccion-actual-titulo {
-    font-weight: 600;
-    margin-bottom: 7px;
+.cont-ubicacion-actual .direccion-actual-titulo.direccion-destino-titulo i {
+    color: var(--destino);
 }
 
 .cont-ubicacion-actual .direccion-actual-titulo i {
@@ -445,11 +449,10 @@ h2 {
 }
 
 .cont-ubicacion-actual .direccion-actual-txt {
+    margin: 0;
+    font-size: 0.9rem;
+    color: var(--secundario);
     margin-bottom: 3px;
-}
-
-.cont-ubicacion-actual .direccion-actual-cords {
-    font-size: 0.7rem;
 }
 
 .btn-ubicacion-actual {
@@ -518,6 +521,90 @@ h2 {
 .cont-marker-temporal .btn-marker:hover {
     background-color: var(--primario);
     color: var(--secundario);
+}
+
+.cont-ubicacion-card-seleccionada {
+    width: 90%;
+    background-color: var(--primario);
+    border-radius: 7px;
+    box-sizing: border-box;
+    padding: 10px;
+    display: flex;
+    margin-bottom: 15px;
+    column-gap: 10px;
+    align-items: center;
+}
+
+.cont-ubicacion-card-seleccionada-img {
+    width: 50px;
+    height: 50px;
+}
+
+.cont-ubicacion-card-seleccionada-info-cont {
+    display: flex;
+    height: 100%;
+    flex-direction: column;
+    justify-content: center;
+    row-gap: 3px;
+}
+
+.cont-ubicacion-card-seleccionada-nombre {
+    font-weight: 700;
+    font-size: 0.9rem;
+    margin: 0;
+}
+
+.cont-ubicacion-card-seleccionada-info-cont .btn-3d {
+    padding-top: 5px;
+    padding-bottom: 5px;
+}
+
+.card-ubicacion {
+    width: 90%;
+    min-height: 70px;
+    background-color: var(--terciario);
+    display: flex;
+    border-radius: 7px;
+    overflow: hidden;
+    border: none;
+    padding: 0;
+    cursor: pointer;
+    transition: 0.2s;
+}
+
+.card-ubicacion:hover {
+    box-shadow: 3px 3px 3px 0px rgba(155, 155, 155, 0.251);
+    transform: translate(-3px, -3px);
+}
+
+.ubicacion-img {
+    height: 70px;
+    min-width: 70px;
+    background-size: cover;
+    background-position: center;
+}
+
+.card-ubicacion-titulo {
+    margin: 0;
+    font-weight: 600;
+    margin-bottom: 5px;
+}
+
+.card-ubicacion-tipo {
+    margin: 0;
+    font-size: 0.8rem;
+    background-color: var(--hover);
+    color: gray;
+    display: inline;
+    padding: 2px;
+    padding-inline: 10px;
+    border-radius: 10px;
+}
+
+.card-ubicacion-cont-info {
+    padding: 10px;
+    box-sizing: border-box;
+    text-align: start;
 }
 
 @media(max-width: 470px){

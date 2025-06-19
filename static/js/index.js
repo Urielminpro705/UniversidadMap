@@ -3,7 +3,6 @@ const btns_secciones = document.querySelectorAll(".btn-bar-seccion");
 const menu_lateral = document.getElementById("cont-bar-lateral");
 const main = document.getElementById("main");
 var pantallaActual = document.getElementById("cont-pantalla-inicio");
-const checkBoxes = document.querySelectorAll(".filtro");
 const capaPoligonos = L.layerGroup();
 const capaPuntos = L.layerGroup();
 const capaCalles = L.layerGroup();
@@ -13,6 +12,7 @@ var calles = null;
 var mapaClick = false;
 var listPuntos = [];
 var listPolys = [];
+var listaFiltros = ["edificio","cancha","administrativo","estacionamiento","natural"];
 let pantallaCooldownActivo = false;
 var ubicaciones = {
     ubicacion_actual: {
@@ -46,6 +46,9 @@ const limitesCoords = L.latLngBounds(
   [21.154566201329885, -101.70916391707974] // Noreste
 );
 
+cargarBtnsFiltros();
+const checkBoxes = document.querySelectorAll(".filtro");
+
 var filtros = () => {
     var filtros = [];
     checkBoxes.forEach((checkBox) => {
@@ -53,7 +56,21 @@ var filtros = () => {
             filtros.push(checkBox.value);
         }
     })
+    console.log(filtros)
     return filtros;
+}
+
+function cargarBtnsFiltros () {
+    const contenedorFiltros = document.querySelector(".cont-desplegable-filtros");
+    listaFiltros.forEach((filtro) => {
+        const filtroSwitch = `
+            <li>
+                <Label for="filtro-${filtro}">${filtro.charAt(0).toUpperCase() + filtro.slice(1)}</Label>
+                <input type="checkbox" name="filtro-${filtro}" id="filtro-${filtro}" class="filtro switch" value="${filtro}" checked>
+            </li>
+        `
+        contenedorFiltros.innerHTML += filtroSwitch;
+    });
 }
 
 // Lista de plantillas de mapas
@@ -81,7 +98,7 @@ const mapas = [
 ]
 
 const map = L.map('map', {
-    maxBounds: limitesCoords,
+    // maxBounds: limitesCoords,
     center: [21.1523, -101.7115], // Punto aproximado al centro
     zoom: 17,
     minZoom: 17,
@@ -101,6 +118,21 @@ var capaMapaActual = L.tileLayer(mapas[0].url, {
 }).addTo(map);
 
 mostrarBtnsMapas();
+
+function obtenerUbicacionReal() {
+    navigator.geolocation.watchPosition(
+        position => {
+            console.log("Lat:", position.coords.latitude, "Lon:", position.coords.longitude);
+            L.marker([position.coords.latitude, position.coords.longitude]).addTo(map)
+                .bindPopup("LOL")
+                .openPopup();
+        },
+        error => {
+            console.error("Error:", error.message);
+            // Ejemplo: "User denied Geolocation"
+        }
+    );
+}
 
 //#region Funciones de Marcadores
 function agregarMarkerTemporal(lat, lon, nombreUbicacion = ubicacionBuscada) {
@@ -153,6 +185,24 @@ function agregarMarkerPermanente(nombreUbicacion = ubicacionBuscada, continuarBu
     if (!continuarBusqueda) {
         desactivarModoBusqueda(nombreUbicacion = nombreUbicacion);
     }
+    if (sePuedeCalcularRuta()) {
+        console.log(
+            ubicaciones["ubicacion_actual"].lon, 
+            ubicaciones["ubicacion_actual"].lat, 
+            ubicaciones["destino"].lon,
+            ubicaciones["destino"].lat
+        )
+        cargarRutas(
+            ubicaciones["ubicacion_actual"].lon, 
+            ubicaciones["ubicacion_actual"].lat, 
+            ubicaciones["destino"].lon,
+            ubicaciones["destino"].lat
+        )
+    }
+}
+
+function sePuedeCalcularRuta () {
+    return ubicaciones["destino"].tag && ubicaciones["ubicacion_actual"].tag;
 }
 
 function removerMarkerPermanente(nombreUbicacion = ubicacionBuscada) {
@@ -254,7 +304,7 @@ checkBoxes.forEach((checkBox) => {
     checkBox.addEventListener("change", () => {
         dibujarPuntosPoligonos(poligonos, capaPoligonos);
         dibujarPuntosPoligonos(puntos, capaPuntos);
-        loadLocations(puntos, poligonos)
+        // loadLocations(puntos, poligonos)
     });
 });
 
@@ -314,8 +364,9 @@ function cerrarMenuLateral() {
     eliminarClase("btn-bar-seccion-active");
     main.classList.add("con-bar-lateral-closed");
     setTimeout(() => {
-        map.invalidateSize();
-    }, 200);
+        map.invalidateSize({pan: false});
+        map.panTo([21.1523, -101.7115], {animate: true});
+    }, 150);
 }
 
 function abrirMenuLateral(event = null, idPantalla = null) {
@@ -342,8 +393,9 @@ function abrirMenuLateral(event = null, idPantalla = null) {
     if (main.classList.contains("con-bar-lateral-closed")) {
         main.classList.remove("con-bar-lateral-closed");
         setTimeout(() => {
-            map.invalidateSize();
-        }, 200);
+            map.invalidateSize({pan: false});
+            if (event) map.panTo([21.1523, -101.7115], {animate: true});
+        }, 150);
     }
     
     const pantallaSiguiente = document.getElementById(idPantalla);
@@ -385,7 +437,6 @@ function cambiarPantalla(pantallaSiguienteID) {
     },duracionMs);
 }
 
-
 function dibujarPuntosPoligonos(data, capa) {
     capa.clearLayers();
     const filtrosActivos = filtros();
@@ -398,12 +449,11 @@ function dibujarPuntosPoligonos(data, capa) {
             let color = "#3388ff";
 
             switch (feature.properties.tipo) {
-                case "zona_natural":
-                    color = "#1fb471a5";
-                    break;
-                case "zona_turistica":
-                    color = "#00eaffb3";
-                    break;
+                case "edificio": color = "#0B7189"; break;
+                case "cancha": color = "orange"; break;
+                case "administrativo": color = "#DB504A"; break;
+                case "estacionamiento": color = "#B4B8C5"; break;
+                case "natural": color = "#1fb471a5";break;
             }
 
             return {
@@ -442,6 +492,9 @@ function dibujarPuntosPoligonos(data, capa) {
 
         onEachFeature: (feature, layer) => {
             layer.bindPopup(feature.properties.nombre);
+            layer.on("click", function(e) {
+                mostrarDetallesLugar(e.target.feature.properties.id);
+            });
             capa.addLayer(layer);
         }
     });
@@ -450,32 +503,106 @@ function dibujarPuntosPoligonos(data, capa) {
     }
 }
 
+function buscarCapaDeFigura (id,esPoligono = true) {
+    let encontrada = null;
+    if(esPoligono) {
+        capaPoligonos.eachLayer(layer => {
+            if(layer.feature?.properties?.id == id) {
+                encontrada = layer
+            }
+        });
+    }
+    return encontrada;
+}
+
+function mostrarDetallesLugar(id, esPoligono = true) {
+    var figura;
+    const capa = buscarCapaDeFigura(id);
+    capa.openPopup();
+    if (esPoligono) {
+        figura = poligonos.features.find(f => f.properties.id === id);
+    } else {
+        figura = poligonos.features.find(f => f.properties.id === id);
+    }
+    const centroide = turf.centroid(figura.geometry); 
+    const [lng, lat] = centroide.geometry.coordinates;
+    const contDetalles = document.getElementById("body-detail");
+    const pagina = `
+        <div id="img-detail"></div>
+        <h3 id="title-detail">${figura.properties.nombre}</h3>
+        <p class="sub-detail"><i class="fa-solid fa-map-location-dot"></i> A <span id="m-detail"></span> Metros</p>
+        <p id="text-detail"></p>
+        <div id="props-detail">
+        </div>
+    `;
+
+    contDetalles.innerHTML = pagina;
+    const imgDetail = document.getElementById("img-detail");
+    imgDetail.style.backgroundImage = `url('${figura.properties.imagen}')`;
+    const propiedadesCont = document.getElementById("props-detail");
+
+    Object.entries(figura.properties).forEach(([propiedad, valor]) => {
+        const propiedadText = `f`
+    });
+
+    abrirMenuLateral(undefined, "cont-pantalla-detalles");
+    setTimeout(function () {
+        volarHacia(lat, lng);
+    },170);
+}
+
 function cargarPoligonos() {
-    fetch('http://localhost:3000/poligonos')
+    fetch('http://localhost:3000/zonas')
     .then(res => res.json())
     .then(data => {
         poligonos = data;
-        loadLocations(puntos, poligonos)
+        // loadLocations(puntos, poligonos)
         dibujarPuntosPoligonos(data, capaPoligonos)
+        mostrarCardUbicaciones();
     });
 }
 
-function cargarPuntos() {
-    fetch('http://localhost:3000/puntos')
+function cargarRutas(lonOrigen, latOrigen, lonDestino, latDestino) {
+    const url = `http://localhost:3000/ruta-personalizada?lon_origen=${lonOrigen}&lat_origen=${latOrigen}&lon_destino=${lonDestino}&lat_destino=${latDestino}`;
+    fetch(url)
     .then(res => res.json())
     .then(data => {
-        puntos = data;
-        loadLocations(puntos, poligonos)
-        dibujarPuntosPoligonos(data, capaPuntos)
+        console.log(data)
+        capa = L.geoJSON(data, {
+            style: { color:"blue", weight:2 },
+        })
+        capaCalles.addLayer(capa);
+        const latDestino = data.features[0].properties.snap_destino.coordinates[1]
+        const lonDestino = data.features[0].properties.snap_destino.coordinates[0]
+        const latOrigen = data.features[0].properties.snap_origen.coordinates[1]
+        const lonOrigen = data.features[0].properties.snap_origen.coordinates[0]
+        console.log(latDestino, lonDestino)
+        const marcador1 = L.marker([latDestino, lonDestino]).addTo(map)
+            .bindPopup(String(latDestino))
+            .openPopup();
+        const marcador2 = L.marker([latOrigen, lonOrigen]).addTo(map)
+            .bindPopup(String(latOrigen))
+            .openPopup();
+        // console.log(marcador)
+        volarHacia(latDestino, lonDestino, 17)
     });
 }
+
+// function cargarPuntos() {
+//     fetch('http://localhost:3000/puntos')
+//     .then(res => res.json())
+//     .then(data => {
+//         puntos = data;
+//         loadLocations(puntos, poligonos)
+//         dibujarPuntosPoligonos(data, capaPuntos)
+//     });
+// }
 
 function cargarCalles() {
     fetch(`http://localhost:3000/calles`)
     .then(res => res.json())
     .then(data => {
         calles = data;
-        // if (capaCalles) map.removeLayer(capaCalles);
         capa = L.geoJSON(data, {
             style: { color:"red", weight:2 },
         })
@@ -484,9 +611,9 @@ function cargarCalles() {
     map.addLayer(capaCalles);
 }
 
-cargarPoligonos();
-cargarPuntos();
 cargarCalles();
+cargarPoligonos();
+// cargarPuntos();
 
 async function convertirDireccion(direccion) {
     if (direccion) {
@@ -522,82 +649,133 @@ document.getElementById("barra-busqueda").addEventListener("keypress", function(
 
 //#region CARGAR Card-Locations
 
-function loadLocations(puntos, polys, id = '#cont-locations'){
-    console.log("Se cargan los load locations");
+// function loadLocations(puntos, polys, id = '#cont-locations'){
+//     console.log("Se cargan los load locations");
 
-    if(puntos == null || polys == null){
-        return;
-    }
+//     if(puntos == null || polys == null){
+//         return;
+//     }
 
-    listPuntos = puntos.features.map(point => {
-        console.log("se agrego el id: "+point.id)
-        const [lng, lat] = point.geometry.coordinates;
-        return{
-            ...point.properties,
-            lat,
-            lng,
-            type: "point",
-            distance: calcularDistancia(lat, lng)
-        }
+//     listPuntos = puntos.features.map(point => {
+//         console.log("se agrego el id: "+point.id)
+//         const [lng, lat] = point.geometry.coordinates;
+//         return{
+//             ...point.properties,
+//             lat,
+//             lng,
+//             type: "point",
+//             distance: calcularDistancia(lat, lng)
+//         }
+//     });
+
+//     listPolys = polys.features.map(point => {
+//         const centroide = turf.centroid(point) 
+//         const [lng, lat] = centroide.geometry.coordinates;
+//         return{
+//             ...point.properties,
+//             lat,
+//             lng,
+//             type: "poly",
+//             distance: calcularDistancia(lat, lng)
+//         }
+//     });
+
+//     console.log("||| PUNTOS:")
+//     console.log(listPuntos)
+//     const container = document.querySelector(id);
+//     let htmlContent = "";
+//     const filters = filtros();
+
+//     container.innerHTML = "";
+
+//     for (let c = 0; c < listPuntos.length; c++) {
+
+//         const type = listPuntos[c].tipo;
+//         const descr = (listPuntos[c].descripcion.length > 40) ? listPuntos[c].descripcion.slice(0, 40)+"..." : listPuntos[c].descripcion;
+//         const display = (filters.includes(type)) ? '' : 'style="display:none;"';
+
+//         htmlContent += `
+//             <div class="card-location" data-id="${listPuntos[c].id}" ${display} data-lat="${listPuntos[c].lat}" data-lng="${listPuntos[c].lng}" data-type="${listPuntos[c].type}">
+//                 <div class="card-location-img" style="background-image:url(${listPuntos[c].imagen})"></div>
+//                 <div class="card-location-top">
+//                     <p>${listPuntos[c].tipo}</p>
+//                     <p><i class="fa-solid fa-map-location-dot"></i> A ${listPuntos[c].distance} km</p>
+//                 </div>
+//                 <p class="card-location-title">${listPuntos[c].nombre}</p>
+//                 <p class="card-location-sub">${descr}</p>
+//             </div>`;    
+//     }
+
+//     for (let c = 0; c < listPolys.length; c++) {
+
+//         const type = listPolys[c].tipo;
+//         const descr = (listPolys[c].descripcion.length > 40) ? listPolys[c].descripcion.slice(0, 40)+"..." : listPolys[c].descripcion;
+//         const display = (filters.includes(type)) ? '' : 'style="display:none;"';
+
+//         htmlContent += `
+//             <div class="card-location" data-id="${listPolys[c].id}" ${display} data-lat="${listPolys[c].lat}" data-lng="${listPolys[c].lng}" data-type="${listPolys[c].type}">
+//                 <div class="card-location-img" style="background-image:url(${listPolys[c].imagen})"></div>
+//                 <div class="card-location-top">
+//                     <p>${listPolys[c].tipo}</p>
+//                     <p><i class="fa-solid fa-map-location-dot"></i> A ${listPolys[c].distance} km</p>
+//                 </div>
+//                 <p class="card-location-title">${listPolys[c].nombre}</p>
+//                 <p class="card-location-sub">${descr}</p>
+//             </div>`;    
+//     }
+
+//     container.innerHTML += htmlContent;
+// }
+
+function mostrarCardUbicaciones(figuras = poligonos) {
+    const contUbicaciones = document.getElementById("cont-ubicaciones");
+    const grupos = agruparFigurasPorTipo(figuras);
+
+    // Limpir tarjetas
+    contUbicaciones.innerHTML = '';
+
+    // Crear un contenedor por cada tipo
+    Object.entries(grupos).forEach(([tipo, features]) => {
+        const contenedor = `
+            <p class="local-main-title">${tipo.charAt(0).toUpperCase() + tipo.slice(1)}</p>
+            <div id="cont-locations-${tipo}" class="cont-contenido">
+                <!-- Aqui van card locations -->
+                </button>
+            </div>
+        `;
+        contUbicaciones.innerHTML += contenedor;
+        const contCards = document.getElementById(`cont-locations-${tipo}`);
+
+        // Agregar las cards de ubicaciones
+        features.forEach((figura) => {
+            const card = `
+                <button class="card-ubicacion" onclick="mostrarDetallesLugar(${figura.properties.id})">
+                    <div id="ubicacion-img-${figura.properties.id}" class="ubicacion-img"></div>
+                    <div class="card-ubicacion-cont-info">
+                        <p class="card-ubicacion-titulo">${figura.properties.nombre}</p>
+                        <p class="card-ubicacion-tipo">${tipo}</p>
+                    </div>
+                </button>
+            `;
+            contCards.innerHTML += card;
+            const img = document.getElementById(`ubicacion-img-${figura.properties.id}`);
+            img.style.backgroundImage = `url('${figura.properties.imagen}')`;
+        });
     });
+}
 
-    listPolys = polys.features.map(point => {
-        const centroide = turf.centroid(point) 
-        const [lng, lat] = centroide.geometry.coordinates;
-        return{
-            ...point.properties,
-            lat,
-            lng,
-            type: "poly",
-            distance: calcularDistancia(lat, lng)
+// Dividir las figuras por grupos basados en el tipo
+function agruparFigurasPorTipo(figuras) {
+    const grupos = figuras.features.reduce((acc, feature) => {
+        const clave = feature.properties.tipo;
+        if (!acc[clave]) {
+            acc[clave] = [];
         }
-    });
+        acc[clave].push(feature);
+        return acc;
+    }, {});
 
-    console.log("||| PUNTOS:")
-    console.log(listPuntos)
-    const container = document.querySelector(id);
-    let htmlContent = "";
-    const filters = filtros();
-
-    container.innerHTML = "";
-
-    for (let c = 0; c < listPuntos.length; c++) {
-
-        const type = listPuntos[c].tipo;
-        const descr = (listPuntos[c].descripcion.length > 40) ? listPuntos[c].descripcion.slice(0, 40)+"..." : listPuntos[c].descripcion;
-        const display = (filters.includes(type)) ? '' : 'style="display:none;"';
-
-        htmlContent += `
-            <div class="card-location" data-id="${listPuntos[c].id}" ${display} data-lat="${listPuntos[c].lat}" data-lng="${listPuntos[c].lng}" data-type="${listPuntos[c].type}">
-                <div class="card-location-img" style="background-image:url(${listPuntos[c].imagen})"></div>
-                <div class="card-location-top">
-                    <p>${listPuntos[c].tipo}</p>
-                    <p><i class="fa-solid fa-map-location-dot"></i> A ${listPuntos[c].distance} km</p>
-                </div>
-                <p class="card-location-title">${listPuntos[c].nombre}</p>
-                <p class="card-location-sub">${descr}</p>
-            </div>`;    
-    }
-
-    for (let c = 0; c < listPolys.length; c++) {
-
-        const type = listPolys[c].tipo;
-        const descr = (listPolys[c].descripcion.length > 40) ? listPolys[c].descripcion.slice(0, 40)+"..." : listPolys[c].descripcion;
-        const display = (filters.includes(type)) ? '' : 'style="display:none;"';
-
-        htmlContent += `
-            <div class="card-location" data-id="${listPolys[c].id}" ${display} data-lat="${listPolys[c].lat}" data-lng="${listPolys[c].lng}" data-type="${listPolys[c].type}">
-                <div class="card-location-img" style="background-image:url(${listPolys[c].imagen})"></div>
-                <div class="card-location-top">
-                    <p>${listPolys[c].tipo}</p>
-                    <p><i class="fa-solid fa-map-location-dot"></i> A ${listPolys[c].distance} km</p>
-                </div>
-                <p class="card-location-title">${listPolys[c].nombre}</p>
-                <p class="card-location-sub">${descr}</p>
-            </div>`;    
-    }
-
-    container.innerHTML += htmlContent;
+    return grupos;
 }
 
 //#endregion
@@ -618,9 +796,9 @@ function detectarClickCardUbicacion(event) {
     }
 }
 
-document.getElementById("cont-locations").addEventListener("click", function(event) {
-    detectarClickCardUbicacion(event);
-});
+// document.getElementById("cont-locations").addEventListener("click", function(event) {
+//     detectarClickCardUbicacion(event);
+// });
 
 document.querySelector(".cont-desplegable-ubicaciones-cercanas").addEventListener("click", function(event) {
     detectarClickCardUbicacion(event);

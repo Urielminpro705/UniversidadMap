@@ -40,20 +40,10 @@
                         <p>Filtrar los resultados</p>
                         <i class="fa-solid fa-caret-down"></i>
                     </button>
-                    <ul class="cont-desplegable-info cont-desplegable-filtros" data-isopened="false">
-                        <li>
-                            <Label for="filtro-edificio">Edificios</Label>
-                            <input type="checkbox" name="filtro-edificio" id="filtro-edificio" class="filtro switch" value="edificio" checked>
-                        </li>
-                    </ul>
+                    <ul class="cont-desplegable-info cont-desplegable-filtros" data-isopened="false"></ul>
                 </div>
                 <hr>
-                <div id="cont-ubicaciones">
-                    <p class="local-main-title">Localizaciones</p>
-                    <div id="cont-locations" class="cont-contenido">
-                        <!-- Aqui van card locations -->
-                    </div>
-                </div>
+                <div id="cont-ubicaciones"></div>
             </div>
             <div class="cont-bar-display" id="cont-pantalla-detalles" hidden>
                 <div class="cont-titulo">
@@ -97,14 +87,13 @@
                         Ubicacion actual
                     </p>
                     <p class="direccion-actual-txt">---Selecciona una ubicación---</p>
-                    <p class="direccion-actual-cords"></p>
                     <div class="cont-btns-ubicacion">
                         <button class="btn-ubicacion-actual btn-3d" onclick="activarModoBusqueda('ubicacion_actual')">
                             Manualmente
                         </button>
-                        <button class="btn-ubicacion-actual btn-3d">
+                        <!-- <button class="btn-ubicacion-actual btn-3d">
                             Automaticamente
-                        </button>
+                        </button> -->
                     </div>
                 </div>
                 <h2>¿A donde vas?</h2>
@@ -113,6 +102,25 @@
                     <button id="btn-busqueda" title="Buscar">
                         <i class="fa-solid fa-magnifying-glass"></i>
                     </button>
+                </div>
+                <div class="cont-ubicacion-actual">
+                    <p class="direccion-actual-titulo direccion-destino-titulo">
+                        <i class="fa-solid fa-location-dot"></i>
+                        Destino
+                    </p>
+                    <div class="cont-ubicacion-card-seleccionada">
+                        <img src="#" alt="" class="cont-ubicacion-card-seleccionada-img">
+                        <div class="cont-ubicacion-card-seleccionada-info-cont">
+                            <p class="cont-ubicacion-card-seleccionada-nombre">Ubicacion UWU</p>
+                            <button class="btn-3d">Ver Ubicación</button>
+                        </div>
+                    </div>
+                    <p class="direccion-actual-txt">---Selecciona un destino---</p>
+                    <div class="cont-btns-ubicacion">
+                        <button class="btn-ubicacion-actual btn-3d" onclick="activarModoBusqueda('destino')">
+                            Manualmente
+                        </button>
+                    </div>
                 </div>
             </div>
         </section>
