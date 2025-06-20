@@ -22,6 +22,7 @@ app.get('/calles', async (req, res) => {
     res.json(geojson);
 });
 
+// Obtener todas las zonas
 app.get('/zonas', async (req, res) => {
     const result = await pool.query(`
         SELECT id, nombre, tipo, pisos, imagen, ST_AsGeoJSON(geom) AS geom FROM zonas;
@@ -36,6 +37,28 @@ app.get('/zonas', async (req, res) => {
                 nombre: row.nombre,
                 tipo: row.tipo,
                 pisos: row.pisos, 
+                imagen: row.imagen, 
+            }
+        }))
+    };
+    res.json(geojson);
+});
+
+app.get('/lugares', async (req, res) => {
+    const result = await pool.query(`
+        SELECT id, nombre, piso, tipo, zona, imagen, ST_AsGeoJSON(geom) AS geom FROM lugares;
+    `);
+    const geojson = {
+        type: "FeatureCollection",
+        features: result.rows.map(row => ({
+            type: "Feature",
+            geometry: JSON.parse(row.geom),
+            properties: { 
+                id: row.id, 
+                nombre: row.nombre,
+                piso: row.piso, 
+                tipo: row.tipo,
+                zona: row.zona,
                 imagen: row.imagen, 
             }
         }))
@@ -88,16 +111,13 @@ app.get('/zonas', async (req, res) => {
 //     }
 // });
 
+// Obtener una ruta personalizada
 app.get('/ruta-personalizada', async (req, res) => {
     const { lon_origen, lat_origen, lon_destino, lat_destino } = req.query;
     try {
         if (!lon_origen || !lat_origen || !lon_destino || !lat_destino) {
             return res.status(400).json({ error: 'Faltan parámetros obligatorios' });
         }
-        // const lonOri = parseFloat(lon_origen);
-        // const latOri = parseFloat(lat_origen);
-        // const lonDest = parseFloat(lon_destino);
-        // const latDest = parseFloat(lat_destino);
 
         const query = `
             SELECT seq_out AS seq, node_out AS node, edge_out AS edge, cost_out AS cost, ST_AsGeoJSON(geom_out) AS geom

@@ -44,6 +44,7 @@
                 </div>
                 <hr>
                 <div id="cont-ubicaciones"></div>
+                <div id="cont-ubicaciones-lugares"></div>
             </div>
             <div class="cont-bar-display" id="cont-pantalla-detalles" hidden>
                 <div class="cont-titulo">
@@ -86,36 +87,30 @@
                         <i class="fa-solid fa-location-dot"></i>
                         Ubicacion actual
                     </p>
-                    <p class="direccion-actual-txt">---Selecciona una ubicación---</p>
+                    <div class="cont-ubicacion-card-seleccionada" id="cont-ubicacion-origen-seleccionada">
+                        <p class="direccion-actual-txt">---Selecciona una ubicación---</p>
+                    </div>
                     <div class="cont-btns-ubicacion">
                         <button class="btn-ubicacion-actual btn-3d" onclick="activarModoBusqueda('ubicacion_actual')">
                             Manualmente
                         </button>
-                        <!-- <button class="btn-ubicacion-actual btn-3d">
-                            Automaticamente
-                        </button> -->
                     </div>
                 </div>
                 <h2>¿A donde vas?</h2>
-                <div class="cont-barra-busqueda">
+                <!-- <div class="cont-barra-busqueda">
                     <input type="text" id="barra-busqueda" placeholder="Buscar una ubicación" class="input-busqueda">
                     <button id="btn-busqueda" title="Buscar">
                         <i class="fa-solid fa-magnifying-glass"></i>
                     </button>
-                </div>
+                </div> -->
                 <div class="cont-ubicacion-actual">
                     <p class="direccion-actual-titulo direccion-destino-titulo">
                         <i class="fa-solid fa-location-dot"></i>
                         Destino
                     </p>
-                    <div class="cont-ubicacion-card-seleccionada">
-                        <img src="#" alt="" class="cont-ubicacion-card-seleccionada-img">
-                        <div class="cont-ubicacion-card-seleccionada-info-cont">
-                            <p class="cont-ubicacion-card-seleccionada-nombre">Ubicacion UWU</p>
-                            <button class="btn-3d">Ver Ubicación</button>
-                        </div>
+                    <div class="cont-ubicacion-card-seleccionada" id="cont-ubicacion-destino-seleccionada">
+                        <p class="direccion-actual-txt">---Selecciona un destino---</p>
                     </div>
-                    <p class="direccion-actual-txt">---Selecciona un destino---</p>
                     <div class="cont-btns-ubicacion">
                         <button class="btn-ubicacion-actual btn-3d" onclick="activarModoBusqueda('destino')">
                             Manualmente

@@ -361,17 +361,18 @@ h2 {
 }
 
 .card-location-title{
-    color: var(--secundario);
-    width: 95%;
-    font-size: 0.9rem;
+    color: gray;
+    width: 90%;
+    font-size: 1rem;
     font-weight: 600;
     margin-bottom: 0;
 }
 
 .card-location-sub{
     color: grey;
-    font-size: 0.8rem;
-    width: 95%;
+    font-size: 0.9rem;
+    margin: 0;
+    width: 90%;
 }
 
 .card-location-img{
@@ -452,7 +453,8 @@ h2 {
     margin: 0;
     font-size: 0.9rem;
     color: var(--secundario);
-    margin-bottom: 3px;
+    width: 100%;
+    text-align: center;
 }
 
 .btn-ubicacion-actual {
@@ -530,14 +532,13 @@ h2 {
     box-sizing: border-box;
     padding: 10px;
     display: flex;
-    margin-bottom: 15px;
     column-gap: 10px;
     align-items: center;
 }
 
 .cont-ubicacion-card-seleccionada-img {
     width: 50px;
-    height: 50px;
+    min-height: 50px;
 }
 
 .cont-ubicacion-card-seleccionada-info-cont {
