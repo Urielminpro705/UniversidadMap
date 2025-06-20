@@ -6,6 +6,7 @@ var pantallaActual = document.getElementById("cont-pantalla-inicio");
 const capaPoligonos = L.layerGroup();
 const capaPuntos = L.layerGroup();
 const capaCalles = L.layerGroup();
+const capaRutas = L.layerGroup();
 var poligonos = null;
 var puntos =  null;
 var calles = null;
@@ -304,7 +305,7 @@ checkBoxes.forEach((checkBox) => {
     checkBox.addEventListener("change", () => {
         dibujarPuntosPoligonos(poligonos, capaPoligonos);
         dibujarPuntosPoligonos(puntos, capaPuntos);
-        // loadLocations(puntos, poligonos)
+        mostrarCardUbicaciones(poligonos);
     });
 });
 
@@ -503,6 +504,17 @@ function dibujarPuntosPoligonos(data, capa) {
     }
 }
 
+function dibujarLineas(data, capa, weight = 3, color = "#E6E8E6") {
+    capa.clearLayers();
+    capaActual = L.geoJSON(data, {
+        style: {color: color,weight: weight}
+    });
+    capa.addLayer(capaActual);
+    if (!map.hasLayer(capa)) {
+        capa.addTo(map);
+    }
+}
+
 function buscarCapaDeFigura (id,esPoligono = true) {
     let encontrada = null;
     if(esPoligono) {
@@ -567,24 +579,7 @@ function cargarRutas(lonOrigen, latOrigen, lonDestino, latDestino) {
     fetch(url)
     .then(res => res.json())
     .then(data => {
-        console.log(data)
-        capa = L.geoJSON(data, {
-            style: { color:"blue", weight:2 },
-        })
-        capaCalles.addLayer(capa);
-        const latDestino = data.features[0].properties.snap_destino.coordinates[1]
-        const lonDestino = data.features[0].properties.snap_destino.coordinates[0]
-        const latOrigen = data.features[0].properties.snap_origen.coordinates[1]
-        const lonOrigen = data.features[0].properties.snap_origen.coordinates[0]
-        console.log(latDestino, lonDestino)
-        const marcador1 = L.marker([latDestino, lonDestino]).addTo(map)
-            .bindPopup(String(latDestino))
-            .openPopup();
-        const marcador2 = L.marker([latOrigen, lonOrigen]).addTo(map)
-            .bindPopup(String(latOrigen))
-            .openPopup();
-        // console.log(marcador)
-        volarHacia(latDestino, lonDestino, 17)
+        dibujarLineas(data, capaRutas, 4, "#004CFF");
     });
 }
 
@@ -603,12 +598,8 @@ function cargarCalles() {
     .then(res => res.json())
     .then(data => {
         calles = data;
-        capa = L.geoJSON(data, {
-            style: { color:"red", weight:2 },
-        })
-        capaCalles.addLayer(capa);
+        dibujarLineas(calles, capaCalles, 2);
     })
-    map.addLayer(capaCalles);
 }
 
 cargarCalles();
@@ -729,7 +720,7 @@ document.getElementById("barra-busqueda").addEventListener("keypress", function(
 
 function mostrarCardUbicaciones(figuras = poligonos) {
     const contUbicaciones = document.getElementById("cont-ubicaciones");
-    const grupos = agruparFigurasPorTipo(figuras);
+    const grupos = agruparFigurasPorTipo(figuras, filtros());
 
     // Limpir tarjetas
     contUbicaciones.innerHTML = '';
@@ -765,8 +756,10 @@ function mostrarCardUbicaciones(figuras = poligonos) {
 }
 
 // Dividir las figuras por grupos basados en el tipo
-function agruparFigurasPorTipo(figuras) {
-    const grupos = figuras.features.reduce((acc, feature) => {
+function agruparFigurasPorTipo(figuras, filtrosActivos = filtros()) {
+    const grupos = figuras.features
+        .filter(feature => filtrosActivos.includes(feature.properties.tipo))
+        .reduce((acc, feature) => {
         const clave = feature.properties.tipo;
         if (!acc[clave]) {
             acc[clave] = [];
